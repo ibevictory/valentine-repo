@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Will you be my Val? 💕</title>
   <style>
     * {
@@ -89,6 +89,71 @@
       z-index: 999;
     }
 
+    /* Responsive modal for the mail message */
+    .mail-modal {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.45);
+      z-index: 10000;
+      padding: 20px;
+    }
+
+    .mail-card {
+      width: 100%;
+      max-width: 480px;
+      border-radius: 20px;
+      padding: 22px;
+      background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+      color: #222;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .mail-card h2 {
+      color: #d63031;
+      margin-bottom: 14px;
+      font-size: clamp(1.1rem, 4vw, 2.2rem);
+    }
+
+    .mail-body {
+      background: white;
+      padding: 16px;
+      border-radius: 12px;
+      margin: 12px 0 18px;
+      line-height: 1.5;
+      font-size: clamp(0.95rem, 3.4vw, 1.15rem);
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.06);
+      color: #333;
+      text-align: left;
+    }
+
+    .mail-footer {
+      font-size: clamp(0.95rem, 3.2vw, 1.05rem);
+      color: #444;
+    }
+
+    .mail-close {
+      position: absolute;
+      right: 18px;
+      top: 16px;
+      background: rgba(255,255,255,0.9);
+      border: none;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+
     @media (min-width: 500px) {
       .buttons {
         flex-direction: row;
@@ -122,7 +187,6 @@
     noBtn.addEventListener('click', (e) => {
       e.preventDefault();
       alert("That's not an option 😤\n\nTake sometime and reconsider please 💕");
-      // stays on same page - both buttons remain
     });
 
     // YES → celebration + colorful fake mail
@@ -141,43 +205,67 @@
     });
 
     function showColorfulMailPopup() {
-      const message = `
-        <div style="font-family: system-ui, sans-serif; max-width: 420px; margin: 0 auto; padding: 30px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); border-radius: 24px; color: #222; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-          <h2 style="color: #d63031; margin-bottom: 20px; font-size: 2.2rem;">📧 Mail Sent to Lovelyn! 💌</h2>
-          <div style="background: white; padding: 24px; border-radius: 16px; margin: 20px 0; line-height: 1.6; font-size: 1.15rem; box-shadow: inset 0 2px 8px rgba(0,0,0,0.1);">
-            <p style="margin: 0 0 16px;">Lovelyn thank you for accepting to be my val,</p>
-            <p style="margin: 0 0 16px;">I definitely never had a val and I'm so happy I get to do it first with you,</p>
-            <p style="margin: 0 0 24px;">so much more firsts to come...</p>
-            <p style="font-size: 1.4rem; font-weight: bold; color: #e84393; margin: 0;">
-              I love you my angel 💕✨
-            </p>
-          </div>
-          <p style="font-size: 1.1rem; color: #444;">Sent with all my heart 💓</p>
-        </div>
+      // Build the modal in-page so it's responsive on mobile
+      const overlay = document.createElement('div');
+      overlay.className = 'mail-modal';
+
+      const card = document.createElement('div');
+      card.className = 'mail-card';
+      card.setAttribute('role', 'dialog');
+      card.setAttribute('aria-modal', 'true');
+
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'mail-close';
+      closeBtn.innerHTML = '✕';
+      closeBtn.title = 'Close';
+
+      const title = document.createElement('h2');
+      title.textContent = '📧 Mail Sent to Lovelyn! 💌';
+
+      const body = document.createElement('div');
+      body.className = 'mail-body';
+      body.innerHTML = `
+        <p style="margin:0 0 12px;">Lovelyn thank you for accepting to be my val,</p>
+        <p style="margin:0 0 12px;">I definitely never had a val and I'm so happy I get to do it first with you,</p>
+        <p style="margin:0 0 12px;">so much more firsts to come...</p>
+        <p style="font-weight:bold; color:#e84393; margin:0;">I love you my angel 💕✨</p>
       `;
 
-      const win = window.open('', '_blank', 'width=480,height=680,scrollbars=yes');
-      if (win) {
-        win.document.write(`
-          <!DOCTYPE html>
-          <html>
-          <head><title>Message Sent 💕</title></head>
-          <body style="margin:0; background:#ffebee; display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px;">
-            ${message}
-          </body>
-          </html>
-        `);
-        win.document.close();
-      } else {
-        // fallback if popup blocked
-        alert(
-          "Mail sent to Lovelyn! 📧\n\n" +
-          "lovelyn thank you for accepting to be my val,\n" +
-          "I definitely never had a val and I'm so happy I get to do it first with you,\n" +
-          "so much more firsts to come...\n\n" +
-          "I love you my angel 💕"
-        );
+      const footer = document.createElement('p');
+      footer.className = 'mail-footer';
+      footer.textContent = 'Sent with all my heart 💓';
+
+      // assemble
+      card.appendChild(closeBtn);
+      card.appendChild(title);
+      card.appendChild(body);
+      card.appendChild(footer);
+      overlay.appendChild(card);
+      document.body.appendChild(overlay);
+
+      // prevent background scrolling while modal is open
+      document.body.style.overflow = 'hidden';
+
+      function closeModal() {
+        if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        document.body.style.overflow = '';
       }
+
+      closeBtn.addEventListener('click', closeModal);
+
+      // clicking the overlay (outside the card) closes the modal
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeModal();
+      });
+
+      // close on ESC
+      function onKey(e) {
+        if (e.key === 'Escape') {
+          closeModal();
+          document.removeEventListener('keydown', onKey);
+        }
+      }
+      document.addEventListener('keydown', onKey);
     }
 
     // Simple colorful confetti
