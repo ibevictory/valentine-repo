@@ -5,32 +5,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Will you be my Val? 💕</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root{
+      --bg-start: #ff9a9e;
+      --bg-end: #fad0c4;
+      --accent-1: #ff4757;
+      --accent-2: #ff6b81;
+      --accent-yes-1: #2ed573;
+      --accent-yes-2: #7bed9f;
     }
+
+    /* Respect user's reduced motion preference */
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+    }
+
+    html, body { height: 100%; }
 
     body {
       min-height: 100vh;
-      background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 99%);
+      background-size: 400% 400%;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       color: #222;
       overflow: hidden;
+      /* gentle animated gradient */
+      animation: bgShift 18s ease-in-out infinite;
+    }
+
+    @keyframes bgShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     h1 {
       font-size: clamp(2.4rem, 10vw, 4.2rem);
       text-align: center;
       color: white;
-      text-shadow: 0 4px 14px rgba(0,0,0,0.35);
-      margin: 0 20px 60px;
+      text-shadow: 0 6px 30px rgba(0,0,0,0.35);
+      margin: 0 20px 40px;
       line-height: 1.2;
-      animation: float 4.5s ease-in-out infinite;
+      animation: fadeInUp 700ms cubic-bezier(.2,.8,.2,1) both;
+      will-change: transform, opacity;
     }
 
     .buttons {
@@ -38,44 +60,66 @@
       max-width: 420px;
       display: flex;
       flex-direction: column;
-      gap: 50px;
+      gap: 28px;
       align-items: center;
+      animation: fadeInUp 900ms 120ms cubic-bezier(.2,.8,.2,1) both;
     }
 
     button {
-      font-size: clamp(1.8rem, 8vw, 2.6rem);
-      font-weight: bold;
-      padding: 20px 0;
+      font-size: clamp(1.6rem, 6.6vw, 2.2rem);
+      font-weight: 700;
+      padding: 16px 0;
       width: 100%;
-      max-width: 320px;
+      max-width: 360px;
       border: none;
       border-radius: 60px;
       cursor: pointer;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-      transition: all 0.18s;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+      transition: transform 240ms cubic-bezier(.2,.8,.2,1), box-shadow 240ms ease, filter 240ms ease;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
+      position: relative;
+      overflow: hidden;
     }
+
+    button::after{
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      mix-blend-mode: overlay;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 340ms ease;
+    }
+
+    button:hover::after{ opacity: 1; }
+
+    /* Idle pulse for buttons */
+    @keyframes pulse {
+      0% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-3px) scale(1.01); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
+    /* Hover/active lift */
+    button:hover, button:active{ transform: translateY(-6px) scale(1.02); }
 
     #yesBtn {
-      background: linear-gradient(45deg, #ff4757, #ff6b81);
+      background: linear-gradient(45deg, var(--accent-1), var(--accent-2));
       color: white;
+      animation: idlePulse 2.6s ease-in-out infinite;
     }
 
-    #yesBtn:hover, #yesBtn:active {
-      transform: scale(1.08);
-      box-shadow: 0 10px 30px rgba(255, 71, 87, 0.5);
-    }
+    /* slower gentle pulse to draw attention */
+    @keyframes idlePulse { 0%{ box-shadow:0 10px 30px rgba(255,71,87,0.18);} 50%{ box-shadow:0 18px 44px rgba(255,71,87,0.28);} 100%{ box-shadow:0 10px 30px rgba(255,71,87,0.18);} }
 
     #noBtn {
       background: linear-gradient(45deg, #57606f, #747d8c);
       color: white;
     }
 
-    #noBtn:hover, #noBtn:active {
-      transform: scale(1.05);
-      background: linear-gradient(45deg, #747d8c, #a0aec0);
-    }
+    @keyframes fadeInUp { from { opacity:0; transform: translateY(14px);} to { opacity:1; transform: translateY(0);} }
 
     @keyframes float {
       0%, 100% { transform: translateY(0); }
@@ -89,6 +133,27 @@
       z-index: 999;
     }
 
+    /* Confetti CSS-driven animation */
+    .confetti-piece {
+      position: absolute;
+      top: -30px;
+      border-radius: 6px;
+      will-change: transform, opacity;
+      animation-name: confettiFall, confettiRotate;
+      animation-timing-function: ease-out, linear;
+      animation-fill-mode: forwards;
+    }
+
+    @keyframes confettiFall {
+      0% { transform: translateY(0) rotate(0); opacity: 1; }
+      100% { transform: translateY(120vh) rotate(720deg); opacity: 0; }
+    }
+
+    @keyframes confettiRotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(720deg); }
+    }
+
     /* Responsive modal for the mail message */
     .mail-modal {
       position: fixed;
@@ -99,71 +164,46 @@
       background: rgba(0,0,0,0.45);
       z-index: 10000;
       padding: 20px;
+      animation: overlayFadeIn 300ms ease both;
     }
+
+    @keyframes overlayFadeIn { from{ opacity:0 } to{ opacity:1 } }
+    @keyframes overlayFadeOut { from{ opacity:1 } to{ opacity:0 } }
 
     .mail-card {
       width: 100%;
-      max-width: 480px;
+      max-width: 520px;
       border-radius: 20px;
       padding: 22px;
       background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
       color: #222;
       text-align: center;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.32);
       overflow: auto;
       -webkit-overflow-scrolling: touch;
+      transform-origin: center;
+      animation: popIn 420ms cubic-bezier(.2,.9,.2,1) both;
     }
 
-    .mail-card h2 {
-      color: #d63031;
-      margin-bottom: 14px;
-      font-size: clamp(1.1rem, 4vw, 2.2rem);
-    }
+    @keyframes popIn { from{ transform: scale(.92) translateY(8px); opacity:0 } to{ transform: scale(1) translateY(0); opacity:1 } }
+    @keyframes popOut { from{ transform: scale(1) translateY(0); opacity:1 } to{ transform: scale(.96) translateY(8px); opacity:0 } }
 
-    .mail-body {
-      background: white;
-      padding: 16px;
-      border-radius: 12px;
-      margin: 12px 0 18px;
-      line-height: 1.5;
-      font-size: clamp(0.95rem, 3.4vw, 1.15rem);
-      box-shadow: inset 0 2px 8px rgba(0,0,0,0.06);
-      color: #333;
-      text-align: left;
-    }
+    .mail-card.closing { animation: popOut 260ms ease both; }
+    .mail-modal.closing { animation: overlayFadeOut 260ms ease both; }
 
-    .mail-footer {
-      font-size: clamp(0.95rem, 3.2vw, 1.05rem);
-      color: #444;
-    }
+    .mail-card h2 { color: #d63031; margin-bottom: 14px; font-size: clamp(1.1rem, 4vw, 2.2rem); }
 
-    .mail-close {
-      position: absolute;
-      right: 18px;
-      top: 16px;
-      background: rgba(255,255,255,0.9);
-      border: none;
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.05rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-    }
+    .mail-body { background: white; padding: 16px; border-radius: 12px; margin: 12px 0 18px; line-height: 1.5; font-size: clamp(0.95rem, 3.4vw, 1.15rem); box-shadow: inset 0 2px 8px rgba(0,0,0,0.06); color: #333; text-align: left; }
+
+    .mail-footer { font-size: clamp(0.95rem, 3.2vw, 1.05rem); color: #444; }
+
+    .mail-close { position: absolute; right: 18px; top: 16px; background: rgba(255,255,255,0.95); border: none; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; box-shadow: 0 6px 18px rgba(0,0,0,0.16); }
+
+    @media (min-width: 700px){ .mail-card{ max-width:480px; } }
 
     @media (min-width: 500px) {
-      .buttons {
-        flex-direction: row;
-        justify-content: center;
-        gap: 120px;
-      }
-      button {
-        width: auto;
-        padding: 20px 80px;
-      }
+      .buttons { flex-direction: row; justify-content: center; gap: 120px; }
+      button { width: auto; padding: 20px 80px; }
     }
   </style>
 </head>
@@ -189,11 +229,11 @@
       alert("That's not an option 😤\n\nTake sometime and reconsider please 💕");
     });
 
-    // YES → celebration + colorful fake mail
+    // YES → celebration + colorful fake mail (animated)
     yesBtn.addEventListener('click', () => {
       yesBtn.textContent = "YAYYYYY!!! 🥰💞";
-      yesBtn.style.background = "linear-gradient(45deg, #2ed573, #7bed9f)";
-      yesBtn.style.transform = "scale(1.25)";
+      yesBtn.style.background = `linear-gradient(45deg, var(--accent-yes-1), var(--accent-yes-2))`;
+      yesBtn.style.transform = "scale(1.12)";
       yesBtn.disabled = true;
 
       noBtn.style.opacity = "0.4";
@@ -201,11 +241,11 @@
 
       launchConfetti();
 
-      setTimeout(showColorfulMailPopup, 1400);
+      setTimeout(showColorfulMailPopup, 1200);
     });
 
     function showColorfulMailPopup() {
-      // Build the modal in-page so it's responsive on mobile
+      // Build the modal in-page so it's responsive on mobile and animated
       const overlay = document.createElement('div');
       overlay.className = 'mail-modal';
 
@@ -246,59 +286,70 @@
       // prevent background scrolling while modal is open
       document.body.style.overflow = 'hidden';
 
-      function closeModal() {
+      function removeOverlay() {
         if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
         document.body.style.overflow = '';
+      }
+
+      function closeModal() {
+        // play closing animation then remove
+        card.classList.add('closing');
+        overlay.classList.add('closing');
+        card.addEventListener('animationend', removeOverlay, { once: true });
       }
 
       closeBtn.addEventListener('click', closeModal);
 
       // clicking the overlay (outside the card) closes the modal
-      overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) closeModal();
-      });
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
 
       // close on ESC
-      function onKey(e) {
-        if (e.key === 'Escape') {
-          closeModal();
-          document.removeEventListener('keydown', onKey);
-        }
-      }
+      function onKey(e) { if (e.key === 'Escape') { closeModal(); document.removeEventListener('keydown', onKey); } }
       document.addEventListener('keydown', onKey);
+
+      // trap focus (simple)
+      closeBtn.focus();
     }
 
-    // Simple colorful confetti
+    // Enhanced colorful confetti using CSS animations
     function launchConfetti() {
       const colors = ['#ff4757', '#1e90ff', '#ffa502', '#2ed573', '#ff9ff3', '#ff6b81', '#feca57', '#4cd137'];
-
-      for (let i = 0; i < 110; i++) {
+      const count = 110;
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      for (let i = 0; i < count; i++) {
         setTimeout(() => {
           const piece = document.createElement('div');
-          const size = Math.random() * 10 + 7;
-          piece.style.cssText = `
-            position: absolute;
-            width: ${size}px;
-            height: ${size}px;
-            background: ${colors[Math.floor(Math.random() * colors.length)]};
-            border-radius: ${Math.random() > 0.6 ? '50%' : '6px'};
-            left: ${Math.random() * 100}vw;
-            top: -30px;
-            opacity: ${Math.random() * 0.7 + 0.3};
-            pointer-events: none;
-            transform: rotate(${Math.random()*360}deg);
-            transition: all ${Math.random()*2.2 + 2.8}s ease-out;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-          `;
+          piece.className = 'confetti-piece';
+
+          const size = Math.random() * 12 + 6; // 6 - 24
+          const left = Math.random() * 100; // vw
+          const color = colors[Math.floor(Math.random() * colors.length)];
+          const duration = (Math.random() * 2.6 + 2.6).toFixed(2); // 2.6 - 5.2s
+          const delay = (Math.random() * 0.6).toFixed(2);
+
+          piece.style.width = `${size}px`;
+          piece.style.height = `${size}px`;
+          piece.style.left = `${left}vw`;
+          piece.style.background = color;
+          piece.style.borderRadius = Math.random() > 0.6 ? '50%' : '6px';
+
+          if (!prefersReduced) {
+            piece.style.animationDuration = `${duration}s, ${duration}s`;
+            piece.style.animationDelay = `${delay}s, 0s`;
+            // add small horizontal sway via transform in JS random
+            const sway = (Math.random() * 60 - 30).toFixed(2); // -30 to 30 px
+            piece.style.transform = `translateX(0)`;
+            piece.style.setProperty('--sway', `${sway}px`);
+          } else {
+            // fallback quickly removing after short time
+            setTimeout(() => piece.remove(), 1000);
+          }
+
           container.appendChild(piece);
 
-          setTimeout(() => {
-            piece.style.transform += ` translateY(${window.innerHeight + 120}px) rotate(${Math.random()*720 - 360}deg)`;
-            piece.style.opacity = '0';
-          }, 100);
-
-          setTimeout(() => piece.remove(), 5000);
-        }, i * 28);
+          // remove after animation
+          setTimeout(() => { piece.remove(); }, (parseFloat(duration) + parseFloat(delay)) * 1000 + 400);
+        }, i * 20);
       }
     }
   </script>
